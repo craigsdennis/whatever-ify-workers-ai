@@ -25,9 +25,9 @@ app.post("/api/images/description", async (c) => {
   const photo = data["photo"];
   const ai = new Ai(c.env.AI);
 
-  // The puppet maker only has three colors of felt and they are "White", "Brown", or "Black". Choose the color that best matches the person's skin tone/color.
+
   const prompt = stripIndents`
-  Describe the person in this photo in great enough detail to provide an artist the ability to recreate them.  
+  Describe the person in this photo in great enough detail to provide a Lego artist the ability to recreate them.  
 
   Ensure you convey the person's distinctive features, their current expression, and overall essence.
   
@@ -98,7 +98,7 @@ app.post("/api/creative/scene", async (c) => {
   const json = await c.req.json();
   const ai = new Ai(c.env.AI);
   const systemMessage = stripIndents`
-  You are a set designer on Sesame Street.
+  You are a photo designer for Lego Product Sales.
 
   The user is going to provide you with a list of hobbies.
 
@@ -117,7 +117,7 @@ app.post("/api/creative/character", async (c) => {
   const json = await c.req.json();
   const ai = new Ai(c.env.AI);
   const systemMessage = stripIndents`
-  You are a Muppet creator.
+  You are a Lego character creator.
 
   The user is going to provide a description of a person.
 
@@ -125,13 +125,11 @@ app.post("/api/creative/character", async (c) => {
   
   Ignore where the user is located physically, or any other irrelevant information.
 
-  Your final task is to craft a description of a new Muppet that exaggerates their distinctive features.
+  Your final task is to craft a description of a new Lego Character that exaggerates their distinctive features.
 
   Their hobbies are also included.
 
   Try to create a rich description that will capture their essence and expression in your description.
-
-  Choose a color for your Muppet's Skin Color and include it in your description.
 
   Limit your character to 4 sentences.
   `;
@@ -194,15 +192,17 @@ app.post("/api/prompts/stable-diffusion", async (c) => {
     Do not include a prefix or suffix for the prompt, just return the prompt.
   `;
   const userPrompt = stripIndents`
-    Included below is a Sesame Street Scene and a Muppet Character that you should use to create the Stable Diffusion prompt.
+    Included below is a Lego Kit Scene description and a Lego Character that you should use to create the Stable Diffusion prompt.
 
-    Make a realistic photo of this new Muppet in the center of the scene described below.
+    Make a realistic photo of this new Lego in the center of the scene described below.
 
-    It is super important that the prompt includes the word Muppet.
+    Build the parts of the scene as if they are made of Lego.
+
+    It is super important that the prompt includes the word Lego.
     
-    Only refer to muppets, not humans. For instance if description says Man or boy, instead use "male muppet", if it says woman or girl use "female muppet"
+    Only refer to lego characters, not humans. For instance if description says Man or boy, instead use "male lego character", if it says woman or girl use "female lego character"
 
-    End the prompt with something like "Capture the essence of this (Muppet:1.1) with an artistic, vibrant, and lifelike representation. photo realistic."
+    End the prompt with something like "Capture the essence of this (Lego Character:1.1) with an artistic, vibrant, and lifelike representation. photo realistic."
 
     Scene: ${json.scene}
     

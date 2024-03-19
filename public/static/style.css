@@ -37,12 +37,12 @@ button {
 
 p.teaching {
     padding: 30px;
-    background-color: #009845;
-    color: #fff;
-    border: 5px solid #ffd101;
+    background-color: #FFD700;
+    color: #000;
+    border: 5px solid #DA291C;
     border-radius: 20px;
 }
 
 .teaching a {
-    color: #ffd101
+    color: #000
 }
