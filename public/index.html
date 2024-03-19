@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>sesamed.ai</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"
+      integrity="sha512-tltvjJD1pUnXVAp0L9id/mcR+zc0xsIKmPMJksEclJ6uEyI8D6eZWpR0jSVWUTXOKcmeBMyND+LQH4ECf/5WKg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body>
+    <div id="app">
+      <h1>sesamed.ai - BETA - Invite Only</h1>
+      <h2>Your Hobbies</h2>
+      <p class="teaching">We will use these to add to your creation</p>
+      <input
+        type="text"
+        size="50"
+        v-model="hobbies"
+        placeholder="Enter your hobbies"
+      />
+      <div v-if="hobbies">
+        <input
+          type="file"
+          @change="handleFileUpload"
+          accept="image/*"
+          style="display: none"
+          ref="fileInput"
+        />
+        <div
+          class="drop-area"
+          @click="triggerFileInput"
+          @dragover.prevent="handleDragOver"
+          @drop.prevent="handleDrop"
+        >
+          Drag an image here or <span class="link">browse</span> to upload
+        </div>
+        <button @click="toggleWebCam">📸 or snap a new one with your webcam</button>
+        <div v-if="isWebCamOn">
+          <video ref="webcam" id="webcam" autoplay style="max-width: 400px"></video>
+          <button @click="capturePhoto">Capture Photo</button>
+          <canvas ref="snapshot" id="snapshot" style="display: none"></canvas>
+        </div>
+      </div>
+
+      <div v-if="image">
+        <img :src="image" alt="Uploaded Image" style="max-width: 400px" />
+        <p class="teaching">
+          We are using AI Vision with the model
+          <a
+            href="https://developers.cloudflare.com/workers-ai/models/uform-gen2-qwen-500m/"
+            >uform-gen2-qwen-500m</a
+          >
+        </p>
+        <p><strong>Description</strong>: {{ imageDescription }}</p>
+      </div>
+      <div v-if="imageDescription">
+        <p class="teaching">
+          We are using the text generation model
+          <a href="@hf/thebloke/openhermes-2.5-mistral-7b-awq"
+            >openhermes-2.5-mistral-7b-awq</a
+          >
+          to generate a scene based on your hobbies and a character based on your description.
+        </p>
+        <p><strong>Scene</strong>: {{ creativeScene }}</p>
+        <p><strong>Character</strong>: {{ creativeCharacter }}</p>        
+      </div>
+
+      <div v-if="prompt">
+        <p class="teaching">Now we are going to use the creative scene and character to generate a Stable Diffusion prompt.</p>
+        <p><strong>Stable Diffusion prompt</strong>: {{ prompt }}</p>        
+      </div>
+
+      <div v-if="muppetImage">
+        <h2>Your Muppet:</h2>
+        <img :src="muppetImage" alt="Muppet Version" style="max-width: 400px" />
+        <button @click="updateMuppet">Try again</button>
+      </div>
+    </div>
+
+    <!-- Vue.js 3 -->
+    <script src="/static/app.js"></script>
+  </body>
+</html>
