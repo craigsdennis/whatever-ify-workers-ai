@@ -98,15 +98,13 @@ app.post("/api/creative/scene", async (c) => {
   const json = await c.req.json();
   const ai = new Ai(c.env.AI);
   const systemMessage = stripIndents`
-  You are a photo designer for Lego Product Sales.
+  You are a scene designer for the new Lego Movie.
 
   The user is going to provide you with a list of hobbies.
 
   Your task is to design a single fun scene where all of the hobbies could take place.
 
   Include your lighting ideas and still shot framing.
-
-  This is going to be used for a photo shoot.
 
   Limit your response to 4 sentences.
   `;
@@ -123,7 +121,7 @@ app.post("/api/creative/character", async (c) => {
 
   Your job is to extract only information about the person and their features. 
   
-  Ignore where the user is located physically, or any other irrelevant information.
+  Ignore where the user is located physically, what is in their background, or any other irrelevant information.
 
   Your final task is to craft a description of a new Lego Character that exaggerates their distinctive features.
 
@@ -192,17 +190,15 @@ app.post("/api/prompts/stable-diffusion", async (c) => {
     Do not include a prefix or suffix for the prompt, just return the prompt.
   `;
   const userPrompt = stripIndents`
-    Included below is a Lego Kit Scene description and a Lego Character that you should use to create the Stable Diffusion prompt.
+    Included below is a Lego Movie Scene description and a Lego Character that you should use to create the Stable Diffusion prompt.
 
-    Make a realistic photo of this new Lego in the center of the scene described below.
+    Make a realistic photo of this new Lego Character in the center of the scene described below.
 
-    Build the parts of the scene as if they are made of Lego.
-
-    It is super important that the prompt includes the word Lego.
+    Try to encourage the scene to be built with Lego. For instance, if there is a part of the scene that says couch, use "couch made of lego".
     
     Only refer to lego characters, not humans. For instance if description says Man or boy, instead use "male lego character", if it says woman or girl use "female lego character"
 
-    End the prompt with something like "Capture the essence of this (Lego Character:1.1) with an artistic, vibrant, and lifelike representation. photo realistic."
+    End the prompt with something like "Capture the essence of this in (Lego:1.1) with an artistic, vibrant, and lifelike representation. photo realistic."
 
     Scene: ${json.scene}
     
