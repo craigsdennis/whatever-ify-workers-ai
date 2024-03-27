@@ -50,7 +50,7 @@ app.post("/api/images/description", async (c) => {
   };
   const data: PhotoBodyData = await c.req.parseBody();
   const photo = data["photo"];
-  const ai = new Ai(c.env.AI);
+  const ai = new Ai(c.env.AI, {debug: true});
 
   // TODO: worth fixing?
   const prompt = stripIndents`
@@ -211,9 +211,29 @@ app.post("/api/images/", async (c) => {
   console.log(`Creating ${json.whatever}`, json);
   const ai = new Ai(c.env.AI);
   // Runs Stable diffusion model
-  const response = await ai.run("@cf/bytedance/stable-diffusion-xl-lightning", {
-    prompt: json.prompt,
-  });
+  let response;
+  let hasValidResponse = false;
+  let retryCount = 0;
+  while (!hasValidResponse && retryCount <= RETRY_COUNT) {
+    try {
+      response = await ai.run("@cf/bytedance/stable-diffusion-xl-lightning", {
+        prompt: json.prompt,
+      });
+      hasValidResponse = true;
+    } catch (err) {
+      console.error(err);
+      retryCount++;
+      if (retryCount >= RETRY_COUNT) {
+        throw err;
+      } else {
+        console.warn(ai.lastRequestId);
+        console.log(`Retry #${retryCount}...`);
+      }
+    }
+  }
+  if (response === undefined) {
+    throw new Error(`Problem with model.`);
+  }
   return c.body(response, 200, {
     "Content-Type": "image/x-png",
   });
