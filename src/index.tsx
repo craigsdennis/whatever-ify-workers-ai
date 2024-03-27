@@ -6,6 +6,8 @@ import { EventSourceParserStream } from "eventsource-parser/stream";
 
 import index_html from "../public/index.html?raw";
 
+const RETRY_COUNT = 5;
+
 type Bindings = {
   AI: Ai;
 };
@@ -23,7 +25,7 @@ app.post("/api/images/description", async (c) => {
   };
   const data: PhotoBodyData = await c.req.parseBody();
   const photo = data["photo"];
-  const ai = new Ai(c.env.AI);
+  const ai = new Ai(c.env.AI, {debug: true});
 
 
   const prompt = stripIndents`
@@ -39,10 +41,32 @@ app.post("/api/images/description", async (c) => {
     
   Provide a detail rich explanation of the person.
   `;
-  const response = await ai.run("@cf/unum/uform-gen2-qwen-500m", {
-    prompt,
-    image: [...new Uint8Array(await photo.arrayBuffer())],
-  });
+  let response;
+  let hasValidResponse = false;
+  let retryCount = 0;
+  while (!hasValidResponse && retryCount <= RETRY_COUNT) {
+    try {
+      response = await ai.run("@cf/unum/uform-gen2-qwen-500m", {
+        prompt,
+        image: [...new Uint8Array(await photo.arrayBuffer())],
+      });
+      hasValidResponse = true;
+    } catch(err) {
+      console.error(err);
+      retryCount++;
+      if (retryCount >= RETRY_COUNT) {
+        throw err;
+        
+      } else {
+        console.warn(ai.lastRequestId);
+        console.log(`Retry #${retryCount}...`);
+      }
+    }
+  }
+  if (response === undefined) {
+    throw new Error(`Problem with model.`);
+  }
+
   return c.json({ result: response.description });
 });
 
@@ -51,11 +75,11 @@ async function promptStream(
   systemMessage: string,
   userPrompt: string
 ) {
-  const ai = new Ai(c.env.AI);
+  const ai = new Ai(c.env.AI, {debug: true});
   let eventSourceStream;
   let hasValidResponse = false;
   let retryCount = 0;
-  while (!hasValidResponse && retryCount < 5) {
+  while (!hasValidResponse && retryCount <= RETRY_COUNT) {
     try {
       eventSourceStream = (await ai.run(
         "@hf/thebloke/openhermes-2.5-mistral-7b-awq",
@@ -71,9 +95,10 @@ async function promptStream(
     } catch(err) {
       console.error(err);
       retryCount++;
-      if (retryCount >= 5) {
+      if (retryCount >= RETRY_COUNT) {
         throw err;
       } else {
+        console.warn(ai.lastRequestId);
         console.log(`Retry #${retryCount}...`);
       }
     }
