@@ -5,6 +5,8 @@ import { stripIndents } from "common-tags";
 import { EventSourceParserStream } from "eventsource-parser/stream";
 
 import index_html from "../public/index.html?raw";
+import whateverify_html from "../public/whateverify.html?raw";
+import { renderer } from './renderer'
 import { registry } from "./whatevers";
 
 const RETRY_COUNT = 5;
@@ -15,15 +17,27 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
+app.use(renderer);
+
+
 // TODO: provide a list of whatevers
 app.get("/", (c) => {
-  return c.html(index_html);
+  return c.render(
+    <div>
+      <h1>Whateverify</h1>
+      <ul>
+      {Object.keys(registry).map(key => (
+        <li><a key={key} href={"/" + key + "/"}>{registry[key].title}</a></li>
+      ))}
+      </ul>
+    </div>
+  );
 });
 
 app.get("/:whatever/", async (c) => {
   const whateverParam = c.req.param("whatever");
   const whatever = registry[whateverParam];
-  let html = index_html;
+  let html = whateverify_html;
   html = html.replace("STATIC_WHATEVER", whateverParam);
   html = html.replace("STATIC_WHATEVER_TITLE", whatever.title);
   return c.html(html);
