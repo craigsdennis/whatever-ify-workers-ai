@@ -169,6 +169,7 @@ createApp({
         method: "POST",
         body: JSON.stringify({
           prompt,
+          whatever: this.whatever
         }),
       });
       const blob = await response.blob();
