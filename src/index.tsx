@@ -5,6 +5,9 @@ import { stripIndents } from "common-tags";
 import { EventSourceParserStream } from "eventsource-parser/stream";
 
 import index_html from "../public/index.html?raw";
+import { registry } from "./whatevers";
+
+const RETRY_COUNT = 5;
 
 type Bindings = {
   AI: Ai;
@@ -12,8 +15,18 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
+// TODO: provide a list of whatevers
 app.get("/", (c) => {
   return c.html(index_html);
+});
+
+app.get("/:whatever/", async (c) => {
+  const whateverParam = c.req.param("whatever");
+  const whatever = registry[whateverParam];
+  let html = index_html;
+  html = html.replace("STATIC_WHATEVER", whateverParam);
+  html = html.replace("STATIC_WHATEVER_TITLE", whatever.title);
+  return c.html(html);
 });
 
 app.post("/api/images/description", async (c) => {
@@ -25,7 +38,7 @@ app.post("/api/images/description", async (c) => {
   const photo = data["photo"];
   const ai = new Ai(c.env.AI);
 
-  // The puppet maker only has three colors of felt and they are "White", "Brown", or "Black". Choose the color that best matches the person's skin tone/color.
+  // TODO: worth fixing?
   const prompt = stripIndents`
   Describe the person in this photo in great enough detail to provide an artist the ability to recreate them.  
 
@@ -39,10 +52,31 @@ app.post("/api/images/description", async (c) => {
     
   Provide a detail rich explanation of the person.
   `;
-  const response = await ai.run("@cf/unum/uform-gen2-qwen-500m", {
-    prompt,
-    image: [...new Uint8Array(await photo.arrayBuffer())],
-  });
+  let response;
+  let hasValidResponse = false;
+  let retryCount = 0;
+  while (!hasValidResponse && retryCount <= RETRY_COUNT) {
+    try {
+      response = await ai.run("@cf/unum/uform-gen2-qwen-500m", {
+        prompt,
+        image: [...new Uint8Array(await photo.arrayBuffer())],
+      });
+      hasValidResponse = true;
+    } catch (err) {
+      console.error(err);
+      retryCount++;
+      if (retryCount >= RETRY_COUNT) {
+        throw err;
+      } else {
+        console.warn(ai.lastRequestId);
+        console.log(`Retry #${retryCount}...`);
+      }
+    }
+  }
+  if (response === undefined) {
+    throw new Error(`Problem with model.`);
+  }
+
   return c.json({ result: response.description });
 });
 
@@ -55,7 +89,7 @@ async function promptStream(
   let eventSourceStream;
   let hasValidResponse = false;
   let retryCount = 0;
-  while (!hasValidResponse && retryCount < 5) {
+  while (!hasValidResponse && retryCount <= RETRY_COUNT) {
     try {
       eventSourceStream = (await ai.run(
         "@hf/thebloke/openhermes-2.5-mistral-7b-awq",
@@ -68,18 +102,19 @@ async function promptStream(
         }
       )) as ReadableStream<any>;
       hasValidResponse = true;
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       retryCount++;
-      if (retryCount >= 5) {
+      if (retryCount >= RETRY_COUNT) {
         throw err;
       } else {
+        console.warn(ai.lastRequestId);
         console.log(`Retry #${retryCount}...`);
       }
     }
   }
   if (eventSourceStream === undefined) {
-    throw new Error(`Problem with model.`)
+    throw new Error(`Problem with model.`);
   }
   const tokenStream = eventSourceStream
     .pipeThrough(new TextDecoderStream())
@@ -96,70 +131,24 @@ async function promptStream(
 
 app.post("/api/creative/scene", async (c) => {
   const json = await c.req.json();
-  const ai = new Ai(c.env.AI);
-  const systemMessage = stripIndents`
-  You are a set designer on Sesame Street.
-
-  The user is going to provide you with a list of hobbies.
-
-  Your task is to design a single fun scene where all of the hobbies could take place.
-
-  Include your lighting ideas and still shot framing.
-
-  This is going to be used for a photo shoot.
-
-  Limit your response to 4 sentences.
-  `;
-  return promptStream(c, systemMessage, json.hobbies);
+  const whatever = registry[json.whatever];
+  return promptStream(c, whatever.scenePrompt, json.hobbies);
 });
 
 app.post("/api/creative/character", async (c) => {
   const json = await c.req.json();
-  const ai = new Ai(c.env.AI);
-  const systemMessage = stripIndents`
-  You are a Muppet creator.
-
-  The user is going to provide a description of a person.
-
-  Your job is to extract only information about the person and their features. 
-  
-  Ignore where the user is located physically, or any other irrelevant information.
-
-  Your final task is to craft a description of a new Muppet that exaggerates their distinctive features.
-
-  Their hobbies are also included.
-
-  Try to create a rich description that will capture their essence and expression in your description.
-
-  Choose a color for your Muppet's Skin Color and include it in your description.
-
-  Limit your character to 4 sentences.
-  `;
+  const whatever = registry[json.whatever];
   const userPrompt = stripIndents`
   Physical Description: ${json.description}
 
   Hobbies: ${json.hobbies}
-  `
-  return promptStream(c, systemMessage, userPrompt);
+  `;
+  return promptStream(c, whatever.characterPrompt, userPrompt);
 });
 
 app.post("/api/prompts/stable-diffusion", async (c) => {
   const json = await c.req.json();
-  const ai = new Ai(c.env.AI);
-  // Send to Mistral
-  // If the word man or boy is in the description, assume that is the muppet. Use "((male muppet:1))" in place of man, and if woman or girl use "((female muppet:1))"
-
-  // Include one of "(muppet color yellow)", "(muppet color green)", "(muppet color blue)", "(muppet color pink), or "muppet color purple" based on their description.
-  //     Determine the skin color of the muppet based on what will complement the color the best.
-
-  // Include the skin color of the muppet in the prompt.
-
-  // Do not write prose, but instead capture the important elements of the scene in short blurbs separated by commas.
-    
-  // Put parenthesis around the most important elements. For instance if the character is described as muscular write "strong, (muscular), smile"
-  
-  // End the prompt with something like "Capture the essence of this (Muppet:1.1) with an artistic, vibrant, and lifelike representation. (photo-realistic)"
-
+  const whatever = registry[json.whatever];
   const systemMessage = stripIndents`
     You are a Stable Diffusion Prompt Engineer. 
 
@@ -194,15 +183,7 @@ app.post("/api/prompts/stable-diffusion", async (c) => {
     Do not include a prefix or suffix for the prompt, just return the prompt.
   `;
   const userPrompt = stripIndents`
-    Included below is a Sesame Street Scene and a Muppet Character that you should use to create the Stable Diffusion prompt.
-
-    Make a realistic photo of this new Muppet in the center of the scene described below.
-
-    It is super important that the prompt includes the word Muppet.
-    
-    Only refer to muppets, not humans. For instance if description says Man or boy, instead use "male muppet", if it says woman or girl use "female muppet"
-
-    End the prompt with something like "Capture the essence of this (Muppet:1.1) with an artistic, vibrant, and lifelike representation. photo realistic."
+    ${whatever.imageRequestPrefixPrompt}  
 
     Scene: ${json.scene}
     
@@ -211,9 +192,9 @@ app.post("/api/prompts/stable-diffusion", async (c) => {
   return promptStream(c, systemMessage, userPrompt);
 });
 
-app.post("/api/images/muppet", async (c) => {
+app.post("/api/images/", async (c) => {
   const json = await c.req.json();
-  console.log("Creating muppet", json);
+  console.log(`Creating ${json.whatever}`, json);
   const ai = new Ai(c.env.AI);
   // Runs Stable diffusion model
   const response = await ai.run("@cf/bytedance/stable-diffusion-xl-lightning", {

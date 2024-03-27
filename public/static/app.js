@@ -9,7 +9,9 @@ createApp({
       prompt: "",
       creativeScene: "",
       creativeCharacter: "",
-      muppetImage: null,
+      whatever: window.whatever,
+      whateverTitle: window.whateverTitle,
+      whateverImage: null,
       isWebCamOn: false,
     };
   },
@@ -125,12 +127,12 @@ createApp({
       const creatives = await Promise.all([
         this.handleStreamingResponse(
           "/api/creative/scene",
-          { hobbies: this.hobbies },
+          { hobbies: this.hobbies, whatever: this.whatever },
           (val) => (this.creativeScene += val)
         ),
         this.handleStreamingResponse(
           "/api/creative/character",
-          { description: this.imageDescription, hobbies: this.hobbies },
+          { description: this.imageDescription, hobbies: this.hobbies, whatever: this.whatever },
           (val) => (this.creativeCharacter += val)
         ),
       ]);
@@ -145,10 +147,10 @@ createApp({
     async generateStableDiffusionPrompt(scene, character) {
       await this.handleStreamingResponse(
         "/api/prompts/stable-diffusion",
-        { scene, character },
+        { scene, character, whatever: this.whatever },
         (val) => (this.prompt += val)
       );
-      await this.updateMuppet();
+      await this.updateWhateverImage();
     },
     async updateDescription(image) {
       const formData = new FormData();
@@ -161,9 +163,9 @@ createApp({
       this.imageDescription = json.result;
       this.generateCreative();
     },
-    async fetchMuppetImage(prompt) {
+    async fetchWhateverImage(prompt) {
       console.log("Fetching image", prompt);
-      const response = await fetch("/api/images/muppet", {
+      const response = await fetch("/api/images/", {
         method: "POST",
         body: JSON.stringify({
           prompt,
@@ -172,10 +174,10 @@ createApp({
       const blob = await response.blob();
       return URL.createObjectURL(blob);
     },
-    async updateMuppet() {
-      const url = await this.fetchMuppetImage(this.prompt);
+    async updateWhateverImage() {
+      const url = await this.fetchWhateverImage(this.prompt);
       console.log(url);
-      this.muppetImage = url;
+      this.whateverImage = url;
     },
   },
 }).mount("#app");

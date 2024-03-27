@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>sesamed.ai</title>
+    <title>Whatever-ify</title>
     <link rel="stylesheet" href="/static/style.css" />
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"
@@ -13,7 +13,7 @@
   </head>
   <body>
     <div id="app">
-      <h1>sesamed.ai - BETA - Invite Only</h1>
+      <h1>{{whateverTitle}}</h1>
       <h2>Your Hobbies</h2>
       <p class="teaching">We will use these to add to your creation</p>
       <input
@@ -60,7 +60,7 @@
       <div v-if="imageDescription">
         <p class="teaching">
           We are using the text generation model
-          <a href="@hf/thebloke/openhermes-2.5-mistral-7b-awq"
+          <a href="https://developers.cloudflare.com/workers-ai/models/openhermes-2.5-mistral-7b-awq"
             >openhermes-2.5-mistral-7b-awq</a
           >
           to generate a scene based on your hobbies and a character based on your description.
@@ -72,15 +72,20 @@
       <div v-if="prompt">
         <p class="teaching">Now we are going to use the creative scene and character to generate a Stable Diffusion prompt.</p>
         <p><strong>Stable Diffusion prompt</strong>: {{ prompt }}</p>        
+        <p class="teaching">Next we'll send the prompt to the text to image model <a href="https://developers.cloudflare.com/workers-ai/models/stable-diffusion-xl-lightning">stable-diffusion-xl-lightning</a></p>
       </div>
-
-      <div v-if="muppetImage">
-        <h2>Your Muppet:</h2>
-        <img :src="muppetImage" alt="Muppet Version" style="max-width: 400px" />
-        <button @click="updateMuppet">Try again</button>
+      <div v-if="whateverImage">
+        <h2>Your {{ whateverTitle }}:</h2>
+        <img :src="whateverImage" alt="{{whateverTitle}} Version" style="max-width: 400px" />
+        <button @click="updateWhateverImage">Try again</button>
       </div>
     </div>
 
+    <script>
+      // These are stamped in statically
+      window.whatever = "STATIC_WHATEVER";
+      window.whateverTitle = "STATIC_WHATEVER_TITLE";
+    </script>
     <!-- Vue.js 3 -->
     <script src="/static/app.js"></script>
   </body>
