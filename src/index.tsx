@@ -25,7 +25,7 @@ app.post("/api/images/description", async (c) => {
   };
   const data: PhotoBodyData = await c.req.parseBody();
   const photo = data["photo"];
-  const ai = new Ai(c.env.AI, {debug: true});
+  const ai = new Ai(c.env.AI);
 
 
   const prompt = stripIndents`
@@ -56,7 +56,7 @@ app.post("/api/images/description", async (c) => {
       retryCount++;
       if (retryCount >= RETRY_COUNT) {
         throw err;
-        
+
       } else {
         console.warn(ai.lastRequestId);
         console.log(`Retry #${retryCount}...`);
@@ -75,7 +75,7 @@ async function promptStream(
   systemMessage: string,
   userPrompt: string
 ) {
-  const ai = new Ai(c.env.AI, {debug: true});
+  const ai = new Ai(c.env.AI);
   let eventSourceStream;
   let hasValidResponse = false;
   let retryCount = 0;
