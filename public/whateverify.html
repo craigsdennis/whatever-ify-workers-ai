@@ -79,13 +79,10 @@
         <img :src="whateverImage" alt="{{whateverTitle}} Version" style="max-width: 400px" />
         <button @click="updateWhateverImage">Try again</button>
       </div>
-      <div class="footer">
-        <p>Built with 🧡 on Cloudflare <a href="https://ai.cloudflare.com">Workers AI</a></p>
-        <p>Use of <em>{{ whateverTitle }}</em> is subject to the Cloudflare Website and Online Services <a href="https://www.cloudflare.com/website-terms/">Terms of Use</a> and <a href="https://www.cloudflare.com/privacypolicy/">Privacy Policy</a></p>
-      </div>
-
     </div>
-
+    <div class="footer">
+      <p>Built with 🧡 on Cloudflare <a href="https://ai.cloudflare.com">Workers AI</a></p>
+    </div>
     <script>
       // These are stamped in statically
       window.whatever = "STATIC_WHATEVER";

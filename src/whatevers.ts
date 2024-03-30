@@ -183,6 +183,6 @@ const Superhero: Whatever = {
 export const registry: { [key: string]: Whatever } = {
   lego: Lego,
   cats: Cat,
-  muppets: Muppet,
+  sesamed: Muppet,
   heroes: Superhero,
 };

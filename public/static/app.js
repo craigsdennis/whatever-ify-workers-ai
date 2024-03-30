@@ -98,10 +98,7 @@ createApp({
     },
     async handleStreamingResponse(url, body, onvalue) {
       let whole = "";
-      console.log({ url });
-      console.log({ body });
       try {
-
         const response = await fetch(url, {
           method: "POST",
           body: JSON.stringify(body),
@@ -120,7 +117,7 @@ createApp({
           whole += value;
         }
       } catch(err) {
-        console.error("HI MOM", err);
+        console.error("Uh oh", err);
       }
     },
     async generateCreative() {

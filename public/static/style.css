@@ -1,7 +1,34 @@
 body, html {
-    margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
+    height: 100%; /* Ensure full height for the body */
+    margin: 0; /* Remove default margin */
+}
+
+body {
+    display: flex; /* Enable flexbox for the body */
+    flex-direction: column; /* Stack elements vertically */
+    justify-content: space-between; /* Space elements to start and end */
+}
+
+.footer {
+    flex-shrink: 0; /* Prevent footer from shrinking */
+    padding-left: 20px;
+}
+
+ul {
+    display: flex; /* Enable flex container */
+    flex-wrap: wrap; /* Allow items to wrap to next line */
+    padding: 0; /* Remove default padding */
+    list-style: none; /* Remove default list style */
+}
+
+li {
+    margin-right: 20px; /* Add some space between the list items */
+}
+
+.footer {
+    margin-top: 20px; /* Add some space above the footer */
 }
 
 #app {
@@ -38,14 +65,46 @@ button {
 .teaching {
     padding: 30px;
     border-radius: 20px;
+    border: 5px solid;
 }
 
 .teaching a {
     color: #000
 }
 
+
+.teaching.sesamed {
+    background-color: #009845;
+    color: #fff;
+    border-color: #ffd101;
+}
+
+.teaching.sesamed a {
+    color: #ffd101
+}
+
 .teaching.lego {
     background-color: #FFD700;
     color: #000;
-    border: 5px solid #DA291C;
+    border-color: #DA291C;
+}
+
+.teaching.cats {
+    background-color: #FADADD;
+    color:  #AB4E52;
+    border: 5px solid #FF007F;
+}
+
+.teaching.cats a {
+    color: #EAA9B8;
+}
+
+.teaching.heroes {
+    background-color: #7EC0EE;
+    color: #1D2951;
+    border-color:  #B22234;
+}
+
+.teaching.heroes a {
+    color: #FFD700;
 }

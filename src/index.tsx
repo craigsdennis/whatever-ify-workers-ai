@@ -4,7 +4,6 @@ import { streamText } from "hono/streaming";
 import { stripIndents } from "common-tags";
 import { EventSourceParserStream } from "eventsource-parser/stream";
 
-import index_html from "../public/index.html?raw";
 import whateverify_html from "../public/whateverify.html?raw";
 import { renderer } from './renderer'
 import { registry } from "./whatevers";
@@ -20,10 +19,9 @@ const app = new Hono<{ Bindings: Bindings }>();
 app.use(renderer);
 
 
-// TODO: provide a list of whatevers
 app.get("/", (c) => {
   return c.render(
-    <div>
+    <div id="app">
       <h1>Whateverify</h1>
       <ul>
       {Object.keys(registry).map(key => (
@@ -50,9 +48,8 @@ app.post("/api/images/description", async (c) => {
   };
   const data: PhotoBodyData = await c.req.parseBody();
   const photo = data["photo"];
-  const ai = new Ai(c.env.AI, {debug: true});
+  const ai = new Ai(c.env.AI);
 
-  // TODO: worth fixing?
   const prompt = stripIndents`
   Describe the person in this photo in great enough detail to provide an artist the ability to recreate them.  
 
@@ -82,7 +79,6 @@ app.post("/api/images/description", async (c) => {
       if (retryCount >= RETRY_COUNT) {
         throw err;
       } else {
-        console.warn(ai.lastRequestId);
         console.log(`Retry #${retryCount}...`);
       }
     }
@@ -122,7 +118,6 @@ async function promptStream(
       if (retryCount >= RETRY_COUNT) {
         throw err;
       } else {
-        console.warn(ai.lastRequestId);
         console.log(`Retry #${retryCount}...`);
       }
     }
@@ -226,7 +221,6 @@ app.post("/api/images/", async (c) => {
       if (retryCount >= RETRY_COUNT) {
         throw err;
       } else {
-        console.warn(ai.lastRequestId);
         console.log(`Retry #${retryCount}...`);
       }
     }
