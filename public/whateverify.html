@@ -15,7 +15,7 @@
     <div id="app">
       <h1>{{whateverTitle}}</h1>
       <h2>Your Hobbies</h2>
-      <p class="teaching">We will use these to add to your creation</p>
+      <p :class="'teaching ' + whatever">We will use these to add to your creation</p>
       <input
         type="text"
         size="50"
@@ -23,6 +23,7 @@
         placeholder="Enter your hobbies"
       />
       <div v-if="hobbies">
+        <p :class="'teaching ' + whatever">Now can you provide a photo of yourself so we can generate some descriptive text. Your photo will not be stored.</p>
         <input
           type="file"
           @change="handleFileUpload"
@@ -36,7 +37,7 @@
           @dragover.prevent="handleDragOver"
           @drop.prevent="handleDrop"
         >
-          Drag an image here or <span class="link">browse</span> to upload
+          Drag your image here or <span class="link">browse</span> to upload
         </div>
         <button @click="toggleWebCam">📸 or snap a new one with your webcam</button>
         <div v-if="isWebCamOn">
@@ -48,7 +49,7 @@
 
       <div v-if="image">
         <img :src="image" alt="Uploaded Image" style="max-width: 400px" />
-        <p class="teaching">
+        <p :class="'teaching ' + whatever">
           We are using AI Vision with the model
           <a
             href="https://developers.cloudflare.com/workers-ai/models/uform-gen2-qwen-500m/"
@@ -58,8 +59,7 @@
         <p><strong>Description</strong>: {{ imageDescription }}</p>
       </div>
       <div v-if="imageDescription">
-        <p class="teaching">
-          We are using the text generation model
+        <p :class="'teaching ' + whatever">We are using the text generation model
           <a href="https://developers.cloudflare.com/workers-ai/models/openhermes-2.5-mistral-7b-awq"
             >openhermes-2.5-mistral-7b-awq</a
           >
@@ -70,9 +70,9 @@
       </div>
 
       <div v-if="prompt">
-        <p class="teaching">Now we are going to use the creative scene and character to generate a Stable Diffusion prompt.</p>
+        <p :class="'teaching ' + whatever">Now we are going to use the creative scene and character to generate a Stable Diffusion prompt.</p>
         <p><strong>Stable Diffusion prompt</strong>: {{ prompt }}</p>        
-        <p class="teaching">Next we'll send the prompt to the text to image model <a href="https://developers.cloudflare.com/workers-ai/models/stable-diffusion-xl-lightning">stable-diffusion-xl-lightning</a></p>
+        <p :class="'teaching ' + whatever">Next we'll send the prompt to the text to image model <a href="https://developers.cloudflare.com/workers-ai/models/stable-diffusion-xl-lightning">stable-diffusion-xl-lightning</a></p>
       </div>
       <div v-if="whateverImage">
         <h2>Your {{ whateverTitle }}:</h2>

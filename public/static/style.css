@@ -35,14 +35,17 @@ button {
     text-decoration: underline;
 }
 
-p.teaching {
+.teaching {
     padding: 30px;
-    background-color: #FFD700;
-    color: #000;
-    border: 5px solid #DA291C;
     border-radius: 20px;
 }
 
 .teaching a {
     color: #000
+}
+
+.teaching.lego {
+    background-color: #FFD700;
+    color: #000;
+    border: 5px solid #DA291C;
 }

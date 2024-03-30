@@ -27,7 +27,7 @@ app.get("/", (c) => {
       <h1>Whateverify</h1>
       <ul>
       {Object.keys(registry).map(key => (
-        <li><a key={key} href={"/" + key + "/"}>{registry[key].title}</a></li>
+        <li className={key + " teaching"} key={key}><a href={"/" + key + "/"}>{registry[key].title}</a></li>
       ))}
       </ul>
     </div>
