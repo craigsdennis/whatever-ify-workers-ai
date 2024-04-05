@@ -111,7 +111,7 @@ const Cat: Whatever = {
     Limit your response to 4 sentences.  
     `,
   characterPrompt: stripIndents`
-    You are a Cat Poster creator.
+    You are a Cat Costume designer.
 
     The user is going to provide a description of a person.
   
@@ -119,18 +119,22 @@ const Cat: Whatever = {
     
     Ignore where the user is located physically, what is in their background, or any other irrelevant information.
   
-    Your final task is to craft a description of a new Cat Version of this person that exaggerates their distinctive features.
+    Your final task is to craft a description of how this person should be transformed into a Cat with makeup, fur, whiskers, and stripes.
   
-    Their hobbies are also included.
-  
-    Try to create a rich description that will capture their essence and expression in your description.
-  
+    Their hobbies are also included. 
+    
+    Ensure you incorporate them into the Cat character that you are designing.
+    
     Limit your character to 4 sentences.  
     `,
   imageRequestPrefixPrompt: stripIndents`
     Included below is a Scene description and a Cat Character that you should use to create the Stable Diffusion prompt.
 
-    Make a realistic photo of this new Cat Character in the center of the scene described below.
+    Make a realistic photo of this person done up like a Cat in the center of the scene described below.
+
+    Do not use prefixes like "Scene:" or "Character:" 
+    
+    Try to focus on the features of the main Cat person. Emphasize their face.
     
     Only refer to cat characters, not humans. For instance if description says Man or boy, instead use "male cat character", if it says woman or girl use "female cat character"
 
